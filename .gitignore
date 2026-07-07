@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Env files (each app also has its own .gitignore)
+.env
+*.local
+
+# Logs
+*.log
+
+# Build output
+dist/
