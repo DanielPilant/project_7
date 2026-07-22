@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 
+
 # Env files (each app also has its own .gitignore)
 .env
 *.local
@@ -10,3 +11,7 @@ node_modules/
 
 # Build output
 dist/
+
+# Local assets
+frontend/src/assets/infinity_pack/
+
