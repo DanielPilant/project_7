@@ -14,3 +14,19 @@ export function fetchProducts(search = '') {
 export function fetchProductById(id) {
   return api.get(`/products/${id}`).then((res) => res.data);
 }
+
+// Upload a new sound pack (zip + main demo + cover image) as multipart form data.
+// formData fields: creatorId, title, description, price, zipFile, mainDemo, coverImage
+export function uploadSoundPack(formData) {
+  return api
+    .post('/products/sound-pack', formData)
+    .then((res) => res.data);
+}
+
+// Upload a preview demo sound and attach it to an existing product by id.
+// formData fields: productId, title, sound
+export function uploadPreviewSound(formData) {
+  return api
+    .post('/products/sound-preview', formData)
+    .then((res) => res.data);
+}
