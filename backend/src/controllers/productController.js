@@ -66,7 +66,7 @@ export const addPreviewSound = async (req, res) => {
 
 export const addSoundPack = async (req, res) => {
   try {
-    const { creatorId, title, description, price } = req.body;
+    const { creatorId, creatorName, title, description, price } = req.body;
 
     const files = req.files;
 
@@ -95,6 +95,7 @@ export const addSoundPack = async (req, res) => {
 
     const soundPackId = await productModel.createProductFile(
       creatorId,
+      creatorName || null,
       title,
       description,
       price,

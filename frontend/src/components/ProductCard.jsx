@@ -14,7 +14,10 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className="card__body">
-        <h3 className="card__title">{product.title}</h3>
+        <div>
+          <h3 className="card__title">{product.title}</h3>
+          <p className="card__creator">by {product.creator_name || 'Unknown creator'}</p>
+        </div>
         <span className="card__price">
           ${Number(product.price ?? 0).toFixed(2)}
         </span>

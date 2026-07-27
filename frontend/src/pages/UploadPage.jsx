@@ -4,12 +4,14 @@ import {
   uploadSoundPack,
   uploadPreviewSound,
 } from "../api/products.js";
+import { useAuth } from "../auth/AuthContext.jsx";
 
 // Upload page: two forms.
 // 1. Upload a sound pack (zip + main demo + cover) -> creates a Product row + S3 files.
 // 2. Upload an extra preview demo, choosing which pack it belongs to by name
 //    (the dropdown value is the product id, so the demo is stored with that id).
 export default function UploadPage() {
+  const { user } = useAuth();
   const [packs, setPacks] = useState([]);
 
   // --- Sound pack form state ---
@@ -50,7 +52,8 @@ export default function UploadPage() {
     setPackError("");
 
     const formData = new FormData();
-    formData.append("creatorId", 1); // TODO: real creator id once auth exists
+    formData.append("creatorId", user?.id ?? 1); // real DB user id
+    formData.append("creatorName", user?.name || "Unknown");
     formData.append("title", packForm.title);
     formData.append("description", packForm.description);
     formData.append("price", packForm.price);

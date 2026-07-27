@@ -1,25 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
-import { getUsers, makeAdmin } from "../auth/auth.js";
+import { fetchUsers, makeAdmin } from "../auth/auth.js";
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  // Local copy of the user list so the admin panel refreshes after promoting.
-  const [users, setUsers] = useState(() => getUsers());
+  const [users, setUsers] = useState([]);
+
+  // Admins load the full user list (from the DB) to manage roles.
+  useEffect(() => {
+    if (user?.role === "admin") {
+      fetchUsers()
+        .then(setUsers)
+        .catch(() => setUsers([]));
+    }
+  }, [user]);
 
   if (!user) return <Navigate to="/login" replace />;
 
-  function handleMakeAdmin(id) {
-    makeAdmin(id);
-    setUsers(getUsers());
+  async function handleMakeAdmin(id) {
+    await makeAdmin(id);
+    setUsers(await fetchUsers());
   }
 
   return (
     <section>
       <h1>Settings</h1>
       <p>
-        {user.name} — {user.email} <span className="badge">{user.role}</span>
+        {user.name} (@{user.username}) — {user.email}{" "}
+        <span className="badge">{user.role}</span>
       </p>
 
       {/* Creator-only: access to the upload/creator page */}
@@ -37,7 +46,8 @@ export default function ProfilePage() {
             {users.map((u) => (
               <li key={u.id} className="user-row">
                 <span>
-                  {u.name} — {u.email} <span className="badge">{u.role}</span>
+                  {u.name} (@{u.username}){" "}
+                  <span className="badge">{u.role}</span>
                 </span>
                 {u.role !== "admin" && (
                   <button onClick={() => handleMakeAdmin(u.id)}>
@@ -50,9 +60,9 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Plain user: nothing extra for now */}
-      {user.role === "user" && (
-        <p>Browse the catalog to buy sound packs. (Catalog coming next.)</p>
+      {/* Plain customer: nothing extra for now */}
+      {user.role === "customer" && (
+        <p>Browse the catalog to buy sound packs. (Buying coming next.)</p>
       )}
     </section>
   );

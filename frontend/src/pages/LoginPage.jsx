@@ -5,7 +5,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -13,10 +13,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      await login(email, password);
-      navigate("/profile");
+      await login(username, password);
+      navigate("/"); // land on the home catalog
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     }
   }
 
@@ -25,12 +25,12 @@ export default function LoginPage() {
       <h1>Log in</h1>
       <form className="upload-card" onSubmit={handleSubmit}>
         <label className="field">
-          Email
+          Username
           <input
             required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
         </label>
 

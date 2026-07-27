@@ -102,6 +102,12 @@ a {
   font-size: 1rem;
 }
 
+.card__creator {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: #6b6b6b;
+}
+
 .card__price {
   font-weight: 700;
   white-space: nowrap;
@@ -125,6 +131,10 @@ a {
 
 .msg--error {
   color: #b00020;
+}
+
+.msg--success {
+  color: #0a7d34;
 }
 
 /* Header nav */

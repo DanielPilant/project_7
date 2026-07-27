@@ -2,7 +2,7 @@ import db from "../config/db.js";
 
 export const getAllProducts = async () => {
   const query = `
-    SELECT id, creator_id, title, description, price, cover_image_url, main_demo_url, created_at
+    SELECT id, creator_id, creator_name, title, description, price, cover_image_url, main_demo_url, created_at
     FROM Products ORDER BY created_at DESC
     `;
 
@@ -34,6 +34,7 @@ export const createProductPreview = async (productId, title, s3Url) => {
 
 export const createProductFile = async (
   creatorId,
+  creatorName,
   title,
   description,
   price,
@@ -42,11 +43,12 @@ export const createProductFile = async (
   zip_file_url,
 ) => {
   const query = `
-    INSERT INTO Products (creator_id, title, description, price, cover_image_url, main_demo_url, zip_file_url) VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO Products (creator_id, creator_name, title, description, price, cover_image_url, main_demo_url, zip_file_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
   const [result] = await db.execute(query, [
     creatorId,
+    creatorName,
     title,
     description,
     price,
