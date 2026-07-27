@@ -42,7 +42,9 @@ The system supports 3 types of users with distinct permission mechanisms:
 ## 🗄️ Database Schema (MySQL)
 
 - `Users`: (id, name, email, password_hash, role, created_at)
-- `Products`: (id, creator_id, title, description, price, cover_image_url, demo_audio_url, zip_file_url, created_at)
+- `Products`: (id, creator_id, title, description, price, cover_image_url, main_demo_url, zip_file_url, created_at)
+- `Product_Previews`: (id, product_id, title, demo_audio_url, created_at) — extra demo sounds attached to a product
+- `Product_Reviews`: (id, product_id, user_id, rating, comment, created_at) — user ratings & comments on a product
 - `Orders`: (id, user_id, total_amount, payment_status, created_at)
 - `Order_Items`: (order_id, product_id, price_at_purchase)
 
