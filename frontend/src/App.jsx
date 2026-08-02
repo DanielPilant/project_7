@@ -3,6 +3,7 @@ import CatalogPage from "./pages/CatalogPage.jsx";
 import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
 import UploadPage from "./pages/UploadPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import AdminPage from "./pages/AdminPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import RequireRole from "./auth/RequireRole.jsx";
@@ -63,6 +64,14 @@ export default function App() {
             }
           />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/admin"
+            element={
+              <RequireRole role="admin">
+                <AdminPage />
+              </RequireRole>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>

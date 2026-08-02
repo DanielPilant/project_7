@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProductById } from '../api/products.js';
+import PackInteractions from '../components/PackInteractions.jsx';
 
 // Details page: shows one product's extended info + demo audio.
 export default function ProductDetailsPage() {
@@ -34,6 +35,7 @@ export default function ProductDetailsPage() {
     <article className="details">
       <Link to="/">← Back to catalog</Link>
       <h1>{product.title}</h1>
+      <p className="card__creator">by {product.creator_name || 'Unknown creator'}</p>
 
       {product.cover_image_url && (
         <img className="details__cover" src={product.cover_image_url} alt={product.title} />
@@ -48,7 +50,9 @@ export default function ProductDetailsPage() {
         </audio>
       )}
 
-      {/* TODO (other features): add-to-cart button, creator info, purchase/download */}
+      <PackInteractions product={product} />
+
+      {/* TODO (other features): add-to-cart button, purchase/download */}
     </article>
   );
 }

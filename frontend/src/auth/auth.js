@@ -46,3 +46,14 @@ export async function becomeCreator(userId) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(data));
   return data;
 }
+
+// Admin: set any user's role, or delete a user entirely.
+export async function setUserRole(userId, role) {
+  const { data } = await api.patch(`/users/${userId}/role`, { role });
+  return data;
+}
+
+export async function deleteUser(userId) {
+  const { data } = await api.delete(`/users/${userId}`);
+  return data;
+}

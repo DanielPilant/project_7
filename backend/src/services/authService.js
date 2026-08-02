@@ -125,3 +125,9 @@ export const setUserRole = async (userId, role) => {
   await pool.execute("UPDATE users SET role = ? WHERE id = ?", [role, userId]);
   return await getPublicUserById(userId);
 };
+
+// Admin action. FK cascade also removes the user's auth row, likes and
+// comments. Their uploaded packs remain (creator_id has no FK).
+export const deleteUser = async (userId) => {
+  await pool.execute("DELETE FROM users WHERE id = ?", [userId]);
+};

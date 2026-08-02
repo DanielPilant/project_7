@@ -59,7 +59,8 @@ a {
 
 /* Card */
 .card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 12px;
@@ -69,6 +70,15 @@ a {
 
 .card:hover {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.card__link {
+  display: block;
+}
+
+.card__footer {
+  padding: 0 0.75rem 0.75rem;
+  margin-top: auto;
 }
 
 .card__cover {
@@ -135,6 +145,231 @@ a {
 
 .msg--success {
   color: #0a7d34;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modal__title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.modal__close {
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal__body {
+  padding: 1.1rem;
+}
+
+/* --- Likes + comments --- */
+.interactions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.like-btn,
+.comment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.like-btn.is-liked {
+  background: #ffe9ec;
+  border-color: #f5b5bf;
+  color: #b00020;
+}
+
+.comment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comment-item {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.comment-item__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: #888;
+  font-size: 0.78rem;
+  margin-bottom: 0.15rem;
+}
+
+.comment-item__delete {
+  border: none;
+  background: none;
+  color: #b00020;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.comment-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.comment-form input {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+/* --- Creator dashboard pack rows --- */
+.pack-row {
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+  max-width: 560px;
+}
+
+.pack-row__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pack-row__stats {
+  margin-left: 0.6rem;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.pack-row__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pack-row__actions button {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.danger {
+  color: #b00020;
+  border-color: #f0b8c0 !important;
+}
+
+.pack-row__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pack-row__edit input,
+.pack-row__edit textarea {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.pack-row__previews {
+  margin-top: 0.8rem;
+  border-top: 1px solid #eee;
+  padding-top: 0.6rem;
+}
+
+.pack-row__previews h4 {
+  margin: 0 0 0.5rem;
+}
+
+.preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.6rem;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+}
+
+.preview-item audio {
+  height: 32px;
+}
+
+.preview-item .danger {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.preview-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.preview-add input:not([type="file"]) {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
 }
 
 /* Header nav */
@@ -220,6 +455,38 @@ a {
 
 .btn:hover {
   opacity: 0.85;
+}
+
+.profile-links {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.9rem 0;
+}
+
+/* Tabs (admin panel) */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1.2rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.tabs button {
+  border: none;
+  background: none;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #666;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button.active {
+  color: #1a1a1a;
+  font-weight: 600;
+  border-bottom-color: #1a1a1a;
 }
 
 /* Upload forms */

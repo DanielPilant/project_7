@@ -94,3 +94,13 @@ export const updateUserRole = async (req, res) => {
     res.status(400).json({ error: error.message || "Failed to update role." });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    await authService.deleteUser(req.params.id);
+    res.json({ success: true, id: Number(req.params.id) });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user." });
+  }
+};

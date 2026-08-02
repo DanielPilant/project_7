@@ -24,9 +24,39 @@ export function uploadSoundPack(formData) {
 }
 
 // Upload a preview demo sound and attach it to an existing product by id.
-// formData fields: productId, title, sound
+// formData fields: productId, title, sound, requesterId, requesterRole
 export function uploadPreviewSound(formData) {
   return api
     .post('/products/sound-preview', formData)
+    .then((res) => res.data);
+}
+
+// A single creator's own packs (with like_count / comment_count).
+export function fetchProductsByCreator(creatorId) {
+  return api.get(`/products/creator/${creatorId}`).then((res) => res.data);
+}
+
+// Update a pack's text fields (owner creator or admin).
+export function updateProduct(id, payload) {
+  return api.patch(`/products/${id}`, payload).then((res) => res.data);
+}
+
+// Delete a pack (owner creator or admin).
+export function deleteProduct(id, requesterId, requesterRole) {
+  return api
+    .delete(`/products/${id}`, { data: { requesterId, requesterRole } })
+    .then((res) => res.data);
+}
+
+// Preview demos attached to a pack.
+export function fetchPreviews(productId) {
+  return api.get(`/products/${productId}/previews`).then((res) => res.data);
+}
+
+export function deletePreview(previewId, requesterId, requesterRole) {
+  return api
+    .delete(`/products/previews/${previewId}`, {
+      data: { requesterId, requesterRole },
+    })
     .then((res) => res.data);
 }

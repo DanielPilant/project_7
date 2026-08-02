@@ -1,20 +1,14 @@
 import { useEffect, useState } from "react";
-import {
-  fetchProducts,
-  uploadSoundPack,
-  uploadPreviewSound,
-} from "../api/products.js";
 import { useAuth } from "../auth/AuthContext.jsx";
+import { uploadSoundPack, fetchProductsByCreator } from "../api/products.js";
+import CreatorPackRow from "../components/CreatorPackRow.jsx";
 
-// Upload page: two forms.
-// 1. Upload a sound pack (zip + main demo + cover) -> creates a Product row + S3 files.
-// 2. Upload an extra preview demo, choosing which pack it belongs to by name
-//    (the dropdown value is the product id, so the demo is stored with that id).
+// Creator Dashboard: create a pack, then view/edit/delete your own packs and
+// manage each pack's preview demos.
 export default function UploadPage() {
   const { user } = useAuth();
   const [packs, setPacks] = useState([]);
 
-  // --- Sound pack form state ---
   const [packForm, setPackForm] = useState({
     title: "",
     description: "",
@@ -23,83 +17,60 @@ export default function UploadPage() {
   const [zipFile, setZipFile] = useState(null);
   const [mainDemo, setMainDemo] = useState(null);
   const [coverImage, setCoverImage] = useState(null);
-  const [packStatus, setPackStatus] = useState("idle"); // idle | uploading | success | error
-  const [packResult, setPackResult] = useState(null);
-  const [packError, setPackError] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | uploading | success | error
+  const [error, setError] = useState("");
 
-  // --- Preview demo form state ---
-  const [selectedPackId, setSelectedPackId] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
-  const [previewSound, setPreviewSound] = useState(null);
-  const [previewStatus, setPreviewStatus] = useState("idle");
-  const [previewResult, setPreviewResult] = useState(null);
-  const [previewError, setPreviewError] = useState("");
-
-  // Load existing packs so the dropdown can offer them by name.
-  function refreshPacks() {
-    fetchProducts()
-      .then(setPacks)
-      .catch(() => setPacks([]));
-  }
-
-  useEffect(() => {
-    refreshPacks();
-  }, []);
-
-  async function handlePackSubmit(e) {
-    e.preventDefault();
-    setPackStatus("uploading");
-    setPackError("");
-
-    const formData = new FormData();
-    formData.append("creatorId", user?.id ?? 1); // real DB user id
-    formData.append("creatorName", user?.name || "Unknown");
-    formData.append("title", packForm.title);
-    formData.append("description", packForm.description);
-    formData.append("price", packForm.price);
-    formData.append("zipFile", zipFile);
-    formData.append("mainDemo", mainDemo);
-    formData.append("coverImage", coverImage);
-
+  async function loadPacks() {
+    if (!user) return;
     try {
-      const data = await uploadSoundPack(formData);
-      setPackResult(data);
-      setPackStatus("success");
-      refreshPacks(); // new pack shows up in the demo dropdown right away
-      setSelectedPackId(String(data.productId)); // preselect the pack we just uploaded
-    } catch (err) {
-      setPackError(err.response?.data?.error || err.message);
-      setPackStatus("error");
+      setPacks(await fetchProductsByCreator(user.id));
+    } catch {
+      setPacks([]);
     }
   }
 
-  async function handlePreviewSubmit(e) {
-    e.preventDefault();
-    setPreviewStatus("uploading");
-    setPreviewError("");
+  useEffect(() => {
+    loadPacks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
-    const formData = new FormData();
-    formData.append("productId", selectedPackId);
-    formData.append("title", previewTitle);
-    formData.append("sound", previewSound);
+  async function handleCreate(e) {
+    e.preventDefault();
+    setStatus("uploading");
+    setError("");
+
+    const fd = new FormData();
+    fd.append("creatorId", user.id);
+    fd.append("creatorName", user.name);
+    fd.append("title", packForm.title);
+    fd.append("description", packForm.description);
+    fd.append("price", packForm.price);
+    fd.append("zipFile", zipFile);
+    fd.append("mainDemo", mainDemo);
+    fd.append("coverImage", coverImage);
 
     try {
-      const data = await uploadPreviewSound(formData);
-      setPreviewResult(data);
-      setPreviewStatus("success");
+      await uploadSoundPack(fd);
+      setStatus("success");
+      setPackForm({ title: "", description: "", price: "" });
+      setZipFile(null);
+      setMainDemo(null);
+      setCoverImage(null);
+      e.target.reset();
+      loadPacks();
     } catch (err) {
-      setPreviewError(err.response?.data?.error || err.message);
-      setPreviewStatus("error");
+      setError(err.response?.data?.error || err.message);
+      setStatus("error");
     }
   }
 
   return (
     <section>
-      <h1>Upload a new Sound Pack</h1>
+      <h1>Creator Dashboard</h1>
 
-      {/* ---------- 1. Sound pack (ZIP) ---------- */}
-      <form className="upload-card" onSubmit={handlePackSubmit}>
-        <h2>1. Upload Sound Pack (ZIP)</h2>
+      {/* ---- Create ---- */}
+      <form className="upload-card" onSubmit={handleCreate}>
+        <h2>Create a new pack</h2>
 
         <label className="field">
           Pack name
@@ -107,9 +78,7 @@ export default function UploadPage() {
             required
             type="text"
             value={packForm.title}
-            onChange={(e) =>
-              setPackForm({ ...packForm, title: e.target.value })
-            }
+            onChange={(e) => setPackForm({ ...packForm, title: e.target.value })}
             placeholder="e.g. Infinity Pack"
           />
         </label>
@@ -122,9 +91,7 @@ export default function UploadPage() {
             min="0"
             step="0.01"
             value={packForm.price}
-            onChange={(e) =>
-              setPackForm({ ...packForm, price: e.target.value })
-            }
+            onChange={(e) => setPackForm({ ...packForm, price: e.target.value })}
             placeholder="19.99"
           />
         </label>
@@ -171,125 +138,22 @@ export default function UploadPage() {
           />
         </label>
 
-        <button type="submit" disabled={packStatus === "uploading"}>
-          {packStatus === "uploading" ? "Uploading…" : "Upload pack"}
+        <button type="submit" disabled={status === "uploading"}>
+          {status === "uploading" ? "Uploading…" : "Create pack"}
         </button>
 
-        {packStatus === "error" && <p className="msg--error">{packError}</p>}
-        {packStatus === "success" && packResult && (
-          <div className="upload-result">
-            <p>
-              ✅ Pack created — product id{" "}
-              <strong>{packResult.productId}</strong>
-            </p>
-            <ul>
-              <li>
-                ZIP:{" "}
-                <a
-                  href={packResult.files.zipFileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {packResult.files.zipFileUrl}
-                </a>
-              </li>
-              <li>
-                Demo:{" "}
-                <a
-                  href={packResult.files.mainDemoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {packResult.files.mainDemoUrl}
-                </a>
-              </li>
-              <li>
-                Cover:{" "}
-                <a
-                  href={packResult.files.coverImageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {packResult.files.coverImageUrl}
-                </a>
-              </li>
-            </ul>
-            <audio controls src={packResult.files.mainDemoUrl} />
-          </div>
+        {status === "error" && <p className="msg--error">{error}</p>}
+        {status === "success" && (
+          <p className="msg--success">Pack created!</p>
         )}
       </form>
 
-      {/* ---------- 2. Preview demo for an existing pack ---------- */}
-      <form className="upload-card" onSubmit={handlePreviewSubmit}>
-        <h2>2. Upload Preview Demo for a Pack</h2>
-
-        <label className="field">
-          Pack (the zip you uploaded)
-          <select
-            required
-            value={selectedPackId}
-            onChange={(e) => setSelectedPackId(e.target.value)}
-          >
-            <option value="" disabled>
-              {packs.length
-                ? "Choose a pack…"
-                : "No packs yet — upload one above"}
-            </option>
-            {packs.map((pack) => (
-              <option key={pack.id} value={pack.id}>
-                {pack.title} (id {pack.id})
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="field">
-          Demo title
-          <input
-            required
-            type="text"
-            value={previewTitle}
-            onChange={(e) => setPreviewTitle(e.target.value)}
-            placeholder="e.g. Acapella preview"
-          />
-        </label>
-
-        <label className="field">
-          Sound file (mp3/wav)
-          <input
-            required
-            type="file"
-            accept=".mp3,.wav"
-            onChange={(e) => setPreviewSound(e.target.files[0])}
-          />
-        </label>
-
-        <button type="submit" disabled={previewStatus === "uploading"}>
-          {previewStatus === "uploading" ? "Uploading…" : "Upload demo"}
-        </button>
-
-        {previewStatus === "error" && (
-          <p className="msg--error">{previewError}</p>
-        )}
-        {previewStatus === "success" && previewResult && (
-          <div className="upload-result">
-            <p>
-              ✅ Demo “{previewResult.preview.title}” saved for product id{" "}
-              <strong>{selectedPackId}</strong>
-            </p>
-            <p>
-              <a
-                href={previewResult.preview.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {previewResult.preview.url}
-              </a>
-            </p>
-            <audio controls src={previewResult.preview.url} />
-          </div>
-        )}
-      </form>
+      {/* ---- Read / Update / Delete ---- */}
+      <h2>My Packs ({packs.length})</h2>
+      {packs.length === 0 && <p>You haven't uploaded any packs yet.</p>}
+      {packs.map((pack) => (
+        <CreatorPackRow key={pack.id} pack={pack} onChanged={loadPacks} />
+      ))}
     </section>
   );
 }
