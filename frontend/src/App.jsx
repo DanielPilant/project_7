@@ -57,7 +57,7 @@ export default function App() {
           <Route
             path="/upload"
             element={
-              <RequireRole role="creator">
+              <RequireRole role={["creator", "admin"]}>
                 <UploadPage />
               </RequireRole>
             }

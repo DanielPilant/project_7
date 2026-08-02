@@ -4,8 +4,9 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { fetchUsers, makeAdmin } from "../auth/auth.js";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, becomeCreator } = useAuth();
   const [users, setUsers] = useState([]);
+  const [error, setError] = useState("");
 
   // Admins load the full user list (from the DB) to manage roles.
   useEffect(() => {
@@ -23,6 +24,15 @@ export default function ProfilePage() {
     setUsers(await fetchUsers());
   }
 
+  async function handleBecomeCreator() {
+    setError("");
+    try {
+      await becomeCreator();
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    }
+  }
+
   return (
     <section>
       <h1>Settings</h1>
@@ -31,8 +41,8 @@ export default function ProfilePage() {
         <span className="badge">{user.role}</span>
       </p>
 
-      {/* Creator-only: access to the upload/creator page */}
-      {user.role === "creator" && (
+      {/* Creator + admin: access to the upload/creator page */}
+      {(user.role === "creator" || user.role === "admin") && (
         <Link to="/upload" className="btn">
           Creator Page
         </Link>
@@ -60,9 +70,15 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Plain customer: nothing extra for now */}
+      {/* Plain customer: can upgrade themselves to a creator */}
       {user.role === "customer" && (
-        <p>Browse the catalog to buy sound packs. (Buying coming next.)</p>
+        <>
+          <p>Browse the catalog to buy sound packs. (Buying coming next.)</p>
+          <button className="btn" onClick={handleBecomeCreator}>
+            Become a creator
+          </button>
+          {error && <p className="msg--error">{error}</p>}
+        </>
       )}
     </section>
   );

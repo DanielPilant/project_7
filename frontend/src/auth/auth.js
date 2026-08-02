@@ -38,3 +38,11 @@ export async function makeAdmin(userId) {
   const { data } = await api.patch(`/users/${userId}/role`, { role: "admin" });
   return data;
 }
+
+// Self-service: the logged-in user upgrades to creator. Because this changes
+// the current user, update the stored session too.
+export async function becomeCreator(userId) {
+  const { data } = await api.patch(`/users/${userId}/role`, { role: "creator" });
+  localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  return data;
+}

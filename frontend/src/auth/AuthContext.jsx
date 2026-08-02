@@ -4,6 +4,7 @@ import {
   register as doRegister,
   login as doLogin,
   logout as doLogout,
+  becomeCreator as doBecomeCreator,
 } from "./auth.js";
 
 // Small context so the navbar + pages re-render when the user logs in/out.
@@ -24,6 +25,11 @@ export function AuthProvider({ children }) {
     logout: () => {
       doLogout();
       setUser(null);
+    },
+    becomeCreator: async () => {
+      const updated = await doBecomeCreator(user.id);
+      setUser(updated);
+      return updated;
     },
     refresh: () => setUser(getCurrentUser()),
   };
