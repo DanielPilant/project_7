@@ -1,0 +1,44 @@
+.wrap {
+  max-width: 680px;
+}
+
+.back {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.title {
+  margin: 0.6rem 0 0.15rem;
+}
+
+.creator {
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.cover {
+  width: 100%;
+  border-radius: var(--radius);
+  margin: 0.5rem 0 1rem;
+  box-shadow: var(--shadow);
+}
+
+.price {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+.desc {
+  color: var(--text);
+}
+
+.audio {
+  width: 100%;
+  margin: 0.75rem 0 1.25rem;
+}

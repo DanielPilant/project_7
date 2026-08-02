@@ -8,10 +8,9 @@ import {
   addComment,
   deleteComment,
 } from "../api/interactions.js";
+import styles from "./PackInteractions.module.css";
 
-// Reusable like button + comment popup for a pack. Used on catalog cards and
-// on the details page. The `liked` highlight reflects actions taken this
-// session (the list endpoint doesn't say whether you already liked).
+// Reusable like button + comment popup. Used on catalog cards and details.
 export default function PackInteractions({ product }) {
   const { user } = useAuth();
   const [likeCount, setLikeCount] = useState(Number(product.like_count) || 0);
@@ -59,9 +58,9 @@ export default function PackInteractions({ product }) {
     user && (user.role === "admin" || String(user.id) === String(c.user_id));
 
   return (
-    <div className="interactions">
+    <div className={styles.bar}>
       <button
-        className={`like-btn ${liked ? "is-liked" : ""}`}
+        className={`${styles.likeBtn} ${liked ? styles.liked : ""}`}
         onClick={toggleLike}
         disabled={!user}
         title={user ? "Like" : "Log in to like"}
@@ -69,25 +68,22 @@ export default function PackInteractions({ product }) {
         ❤ {likeCount}
       </button>
 
-      <button className="comment-btn" onClick={openComments}>
+      <button className={styles.commentBtn} onClick={openComments}>
         💬 {commentCount}
       </button>
 
       {open && (
-        <Modal
-          title={`Comments — ${product.title}`}
-          onClose={() => setOpen(false)}
-        >
-          {comments.length === 0 && <p>No comments yet.</p>}
+        <Modal title={`Comments — ${product.title}`} onClose={() => setOpen(false)}>
+          {comments.length === 0 && <p className={styles.empty}>No comments yet.</p>}
 
-          <ul className="comment-list">
+          <ul className={styles.list}>
             {comments.map((c) => (
-              <li key={c.id} className="comment-item">
-                <div className="comment-item__meta">
-                  <span>@{c.username}</span>
+              <li key={c.id} className={styles.item}>
+                <div className={styles.meta}>
+                  <span className={styles.user}>@{c.username}</span>
                   {canDelete(c) && (
                     <button
-                      className="comment-item__delete"
+                      className={styles.delete}
                       onClick={() => removeComment(c.id)}
                     >
                       delete
@@ -100,7 +96,7 @@ export default function PackInteractions({ product }) {
           </ul>
 
           {user ? (
-            <form className="comment-form" onSubmit={submitComment}>
+            <form className={styles.form} onSubmit={submitComment}>
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -111,7 +107,7 @@ export default function PackInteractions({ product }) {
               </button>
             </form>
           ) : (
-            <p>Log in to comment.</p>
+            <p className={styles.empty}>Log in to comment.</p>
           )}
         </Modal>
       )}

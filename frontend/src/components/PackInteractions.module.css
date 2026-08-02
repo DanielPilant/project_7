@@ -1,0 +1,93 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.likeBtn,
+.commentBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+  padding: 0.28rem 0.75rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  width: auto;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.likeBtn:hover,
+.commentBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.likeBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.liked {
+  background: #ffe9ee;
+  border-color: #f5b5c4;
+  color: var(--danger);
+}
+
+.empty {
+  color: var(--muted);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 0.2rem;
+}
+
+.user {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.delete {
+  border: none;
+  background: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.78rem;
+  width: auto;
+  padding: 0;
+}
+
+.form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.form input {
+  flex: 1;
+}

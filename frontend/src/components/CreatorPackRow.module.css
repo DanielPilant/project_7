@@ -1,0 +1,126 @@
+.row {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.85rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  max-width: 620px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.price {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.stats {
+  margin-left: 0.6rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  width: auto;
+}
+
+.actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.danger {
+  color: var(--danger) !important;
+  border-color: #f3c3d3 !important;
+}
+
+.danger:hover {
+  background: #fff0f4;
+}
+
+.edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.previews {
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.7rem;
+}
+
+.previews h4 {
+  margin: 0 0 0.5rem;
+}
+
+.previewList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.7rem;
+}
+
+.previewItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.previewItem audio {
+  height: 34px;
+}
+
+.previewName {
+  flex: 1;
+  min-width: 120px;
+}
+
+.previewDelete {
+  border: none;
+  background: none;
+  color: var(--danger);
+  cursor: pointer;
+  width: auto;
+}
+
+.addForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.addForm input:not([type="file"]) {
+  width: auto;
+  flex: 1;
+  min-width: 140px;
+}

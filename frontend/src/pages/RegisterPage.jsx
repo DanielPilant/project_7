@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
+import styles from "./Auth.module.css";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -27,7 +28,6 @@ export default function RegisterPage() {
     try {
       await register(form);
       setStatus("done");
-      // Registration does not log you in — send to the login screen.
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
@@ -37,19 +37,19 @@ export default function RegisterPage() {
 
   if (status === "done") {
     return (
-      <section>
-        <h1>Create account</h1>
+      <section className={styles.wrap}>
+        <h1>You&apos;re in! 🎉</h1>
         <p className="msg--success">Account created! Redirecting to login…</p>
       </section>
     );
   }
 
   return (
-    <section>
-      <h1>Create account</h1>
-      <form className="upload-card" onSubmit={handleSubmit}>
-        <label className="field">
-          Name *
+    <section className={styles.wrap}>
+      <h1>Create your account</h1>
+      <form className={styles.card} onSubmit={handleSubmit}>
+        <label className={styles.field}>
+          <span>Name *</span>
           <input
             required
             type="text"
@@ -58,8 +58,8 @@ export default function RegisterPage() {
           />
         </label>
 
-        <label className="field">
-          Username *
+        <label className={styles.field}>
+          <span>Username *</span>
           <input
             required
             type="text"
@@ -68,8 +68,8 @@ export default function RegisterPage() {
           />
         </label>
 
-        <label className="field">
-          Email *
+        <label className={styles.field}>
+          <span>Email *</span>
           <input
             required
             type="email"
@@ -78,8 +78,8 @@ export default function RegisterPage() {
           />
         </label>
 
-        <label className="field">
-          Password *
+        <label className={styles.field}>
+          <span>Password *</span>
           <input
             required
             type="password"
@@ -88,8 +88,8 @@ export default function RegisterPage() {
           />
         </label>
 
-        <label className="field">
-          Phone
+        <label className={styles.field}>
+          <span>Phone</span>
           <input
             type="tel"
             value={form.phone}
@@ -97,8 +97,8 @@ export default function RegisterPage() {
           />
         </label>
 
-        <label className="field">
-          Website
+        <label className={styles.field}>
+          <span>Website</span>
           <input
             type="url"
             value={form.website}
@@ -106,8 +106,8 @@ export default function RegisterPage() {
           />
         </label>
 
-        <label className="field">
-          Account type
+        <label className={styles.field}>
+          <span>Account type</span>
           <select
             value={form.role}
             onChange={(e) => update("role", e.target.value)}
@@ -117,10 +117,12 @@ export default function RegisterPage() {
           </select>
         </label>
 
-        <button type="submit">Register</button>
+        <button type="submit" className={`btn ${styles.submit}`}>
+          Create account
+        </button>
         {status === "error" && <p className="msg--error">{error}</p>}
 
-        <p>
+        <p className={styles.alt}>
           Already have an account? <Link to="/login">Log in</Link>
         </p>
       </form>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
+import styles from "./Auth.module.css";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -21,11 +22,11 @@ export default function LoginPage() {
   }
 
   return (
-    <section>
-      <h1>Log in</h1>
-      <form className="upload-card" onSubmit={handleSubmit}>
-        <label className="field">
-          Username
+    <section className={styles.wrap}>
+      <h1>Welcome back 👋</h1>
+      <form className={styles.card} onSubmit={handleSubmit}>
+        <label className={styles.field}>
+          <span>Username</span>
           <input
             required
             type="text"
@@ -34,8 +35,8 @@ export default function LoginPage() {
           />
         </label>
 
-        <label className="field">
-          Password
+        <label className={styles.field}>
+          <span>Password</span>
           <input
             required
             type="password"
@@ -44,11 +45,13 @@ export default function LoginPage() {
           />
         </label>
 
-        <button type="submit">Log in</button>
+        <button type="submit" className={`btn ${styles.submit}`}>
+          Log in
+        </button>
         {error && <p className="msg--error">{error}</p>}
 
-        <p>
-          No account? <Link to="/register">Register</Link>
+        <p className={styles.alt}>
+          New here? <Link to="/register">Create an account</Link>
         </p>
       </form>
     </section>

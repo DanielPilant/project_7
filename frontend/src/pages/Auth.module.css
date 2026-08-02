@@ -1,0 +1,41 @@
+.wrap {
+  max-width: 420px;
+  margin: 1.5rem auto;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  box-shadow: var(--shadow);
+}
+
+.field {
+  display: block;
+  margin-bottom: 0.9rem;
+}
+
+.field span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+.alt {
+  margin: 1.1rem 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.alt a {
+  color: var(--accent);
+  font-weight: 600;
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { uploadSoundPack, fetchProductsByCreator } from "../api/products.js";
 import CreatorPackRow from "../components/CreatorPackRow.jsx";
+import styles from "./UploadPage.module.css";
 
 // Creator Dashboard: create a pack, then view/edit/delete your own packs and
 // manage each pack's preview demos.
@@ -69,11 +70,11 @@ export default function UploadPage() {
       <h1>Creator Dashboard</h1>
 
       {/* ---- Create ---- */}
-      <form className="upload-card" onSubmit={handleCreate}>
+      <form className={styles.card} onSubmit={handleCreate}>
         <h2>Create a new pack</h2>
 
-        <label className="field">
-          Pack name
+        <label className={styles.field}>
+          <span>Pack name</span>
           <input
             required
             type="text"
@@ -83,8 +84,8 @@ export default function UploadPage() {
           />
         </label>
 
-        <label className="field">
-          Price ($)
+        <label className={styles.field}>
+          <span>Price ($)</span>
           <input
             required
             type="number"
@@ -96,8 +97,8 @@ export default function UploadPage() {
           />
         </label>
 
-        <label className="field">
-          Description
+        <label className={styles.field}>
+          <span>Description</span>
           <textarea
             rows="2"
             value={packForm.description}
@@ -108,8 +109,8 @@ export default function UploadPage() {
           />
         </label>
 
-        <label className="field">
-          ZIP file
+        <label className={styles.field}>
+          <span>ZIP file</span>
           <input
             required
             type="file"
@@ -118,8 +119,8 @@ export default function UploadPage() {
           />
         </label>
 
-        <label className="field">
-          Main demo (mp3/wav)
+        <label className={styles.field}>
+          <span>Main demo (mp3/wav)</span>
           <input
             required
             type="file"
@@ -128,8 +129,8 @@ export default function UploadPage() {
           />
         </label>
 
-        <label className="field">
-          Cover image (jpg/png)
+        <label className={styles.field}>
+          <span>Cover image (jpg/png)</span>
           <input
             required
             type="file"
@@ -138,19 +139,19 @@ export default function UploadPage() {
           />
         </label>
 
-        <button type="submit" disabled={status === "uploading"}>
+        <button type="submit" className="btn" disabled={status === "uploading"}>
           {status === "uploading" ? "Uploading…" : "Create pack"}
         </button>
 
         {status === "error" && <p className="msg--error">{error}</p>}
-        {status === "success" && (
-          <p className="msg--success">Pack created!</p>
-        )}
+        {status === "success" && <p className="msg--success">Pack created!</p>}
       </form>
 
       {/* ---- Read / Update / Delete ---- */}
-      <h2>My Packs ({packs.length})</h2>
-      {packs.length === 0 && <p>You haven't uploaded any packs yet.</p>}
+      <h2 className={styles.section}>My Packs ({packs.length})</h2>
+      {packs.length === 0 && (
+        <p className={styles.empty}>You haven&apos;t uploaded any packs yet.</p>
+      )}
       {packs.map((pack) => (
         <CreatorPackRow key={pack.id} pack={pack} onChanged={loadPacks} />
       ))}

@@ -8,43 +8,43 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import RequireRole from "./auth/RequireRole.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
+import styles from "./App.module.css";
 
-// Top-level layout + route table for the Product Catalog feature.
+// Top-level layout + route table.
 export default function App() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="app">
-      <header className="app__header">
-        <Link to="/" className="app__logo">
-          SoundForge 🎛️
+    <div>
+      <header className={styles.header}>
+        <Link to="/" className={styles.brand}>
+          🎧 <span className={styles.brandMark}>Home</span>
         </Link>
 
-        {user ? (
-          <>
-            <Link
-              to="/profile"
-              className="app__nav-link app__nav-link--right"
-            >
-              Profile
-            </Link>
-            <button className="app__nav-link app__nav-link--btn" onClick={logout}>
-              Log out
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="app__nav-link app__nav-link--right">
-              Log in
-            </Link>
-            <Link to="/register" className="app__nav-link">
-              Register
-            </Link>
-          </>
-        )}
+        <nav className={styles.nav}>
+          {user ? (
+            <>
+              <Link to="/profile" className={styles.link}>
+                Profile
+              </Link>
+              <button className={styles.logout} onClick={logout}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={styles.link}>
+                Log in
+              </Link>
+              <Link to="/register" className={styles.link}>
+                Sign up
+              </Link>
+            </>
+          )}
+        </nav>
       </header>
 
-      <main className="app__main">
+      <main className={styles.main}>
         <Routes>
           <Route
             path="/"

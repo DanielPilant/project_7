@@ -5,6 +5,7 @@ import { fetchUsers, setUserRole, deleteUser } from "../auth/auth.js";
 import { fetchProducts } from "../api/products.js";
 import { fetchAllComments, deleteComment } from "../api/interactions.js";
 import CreatorPackRow from "../components/CreatorPackRow.jsx";
+import styles from "./AdminPage.module.css";
 
 // Admin content panel: list + manage all users, packs and comments.
 export default function AdminPage() {
@@ -30,7 +31,8 @@ export default function AdminPage() {
   }
 
   async function removeUser(id) {
-    if (!window.confirm("Delete this user? Their likes and comments go too.")) return;
+    if (!window.confirm("Delete this user? Their likes and comments go too."))
+      return;
     await deleteUser(id);
     loadUsers();
   }
@@ -40,25 +42,22 @@ export default function AdminPage() {
     loadComments();
   }
 
+  const tabClass = (t) =>
+    `${styles.tab} ${tab === t ? styles.active : ""}`;
+
   return (
     <section>
       <h1>Admin Panel</h1>
 
-      <div className="tabs">
-        <button
-          className={tab === "users" ? "active" : ""}
-          onClick={() => setTab("users")}
-        >
+      <div className={styles.tabs}>
+        <button className={tabClass("users")} onClick={() => setTab("users")}>
           Users
         </button>
-        <button
-          className={tab === "packs" ? "active" : ""}
-          onClick={() => setTab("packs")}
-        >
+        <button className={tabClass("packs")} onClick={() => setTab("packs")}>
           Packs
         </button>
         <button
-          className={tab === "comments" ? "active" : ""}
+          className={tabClass("comments")}
           onClick={() => setTab("comments")}
         >
           Comments
@@ -67,14 +66,14 @@ export default function AdminPage() {
 
       {/* ---- Users ---- */}
       {tab === "users" && (
-        <ul className="user-list">
+        <ul className={styles.list}>
           {users.map((u) => (
-            <li key={u.id} className="user-row">
+            <li key={u.id} className={styles.row}>
               <span>
                 {u.name} (@{u.username}) — {u.email}{" "}
                 <span className="badge">{u.role}</span>
               </span>
-              <span className="pack-row__actions">
+              <span className={styles.actions}>
                 <select
                   value={u.role}
                   onChange={(e) => changeRole(u.id, e.target.value)}
@@ -85,7 +84,7 @@ export default function AdminPage() {
                   <option value="admin">admin</option>
                 </select>
                 <button
-                  className="danger"
+                  className={styles.del}
                   onClick={() => removeUser(u.id)}
                   disabled={u.id === user.id}
                 >
@@ -109,17 +108,19 @@ export default function AdminPage() {
 
       {/* ---- Comments ---- */}
       {tab === "comments" && (
-        <ul className="comment-list">
+        <ul className={styles.list}>
           {comments.length === 0 && <p>No comments.</p>}
           {comments.map((c) => (
-            <li key={c.id} className="comment-item">
-              <div className="comment-item__meta">
+            <li key={c.id} className={styles.comment}>
+              <div className={styles.commentMeta}>
                 <span>
                   @{c.username} on{" "}
-                  <Link to={`/products/${c.product_id}`}>{c.product_title}</Link>
+                  <Link to={`/products/${c.product_id}`} className={styles.link}>
+                    {c.product_title}
+                  </Link>
                 </span>
                 <button
-                  className="comment-item__delete"
+                  className={styles.del}
                   onClick={() => removeComment(c.id)}
                 >
                   delete

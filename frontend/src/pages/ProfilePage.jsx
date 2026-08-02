@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
 import UserActions from "../components/UserActions.jsx";
+import styles from "./ProfilePage.module.css";
 
 export default function ProfilePage() {
   const { user, becomeCreator } = useAuth();
@@ -20,8 +21,8 @@ export default function ProfilePage() {
 
   return (
     <section>
-      <h1>Settings</h1>
-      <p>
+      <h1>My Profile</h1>
+      <p className={styles.meta}>
         {user.name} (@{user.username}) — {user.email}{" "}
         <span className="badge">{user.role}</span>
       </p>
@@ -29,14 +30,14 @@ export default function ProfilePage() {
       {/* Everyone: my likes + my comments */}
       <UserActions />
 
-      <div className="profile-links">
+      <div className={styles.links}>
         {(user.role === "creator" || user.role === "admin") && (
           <Link to="/upload" className="btn">
-            Creator Page
+            🎛️ Creator Dashboard
           </Link>
         )}
         {user.role === "admin" && (
-          <Link to="/admin" className="btn">
+          <Link to="/admin" className="btn btn--ghost">
             Admin Panel
           </Link>
         )}
@@ -45,7 +46,9 @@ export default function ProfilePage() {
       {/* Plain customer: can upgrade themselves to a creator */}
       {user.role === "customer" && (
         <>
-          <p>Browse the catalog to buy sound packs. (Buying coming next.)</p>
+          <p className={styles.note}>
+            Want to sell your own sounds? Become a creator to upload packs.
+          </p>
           <button className="btn" onClick={handleBecomeCreator}>
             Become a creator
           </button>

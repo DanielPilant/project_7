@@ -7,10 +7,10 @@ import {
   deletePreview,
   uploadPreviewSound,
 } from "../api/products.js";
+import styles from "./CreatorPackRow.module.css";
 
 // One pack in the creator dashboard: edit text fields, delete the pack, and
-// manage (list / add / delete) its preview demos. `onChanged` refreshes the
-// parent list after a create/edit/delete that changes it.
+// manage (list / add / delete) its preview demos.
 export default function CreatorPackRow({ pack, onChanged }) {
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
@@ -96,27 +96,30 @@ export default function CreatorPackRow({ pack, onChanged }) {
   }
 
   return (
-    <div className="pack-row">
+    <div className={styles.row}>
       {!editing ? (
-        <div className="pack-row__head">
+        <div className={styles.head}>
           <div>
-            <strong>{pack.title}</strong> — ${Number(pack.price).toFixed(2)}
-            <span className="pack-row__stats">
+            <span className={styles.title}>{pack.title}</span> —{" "}
+            <span className={styles.price}>
+              ${Number(pack.price).toFixed(2)}
+            </span>
+            <span className={styles.stats}>
               ❤ {pack.like_count} · 💬 {pack.comment_count}
             </span>
           </div>
-          <div className="pack-row__actions">
+          <div className={styles.actions}>
             <button onClick={() => setEditing(true)}>Edit</button>
             <button onClick={togglePreviews}>
               {showPreviews ? "Hide" : "Previews"}
             </button>
-            <button className="danger" onClick={handleDelete} disabled={busy}>
+            <button className={styles.danger} onClick={handleDelete} disabled={busy}>
               Delete
             </button>
           </div>
         </div>
       ) : (
-        <form className="pack-row__edit" onSubmit={saveEdit}>
+        <form className={styles.edit} onSubmit={saveEdit}>
           <input
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -137,7 +140,7 @@ export default function CreatorPackRow({ pack, onChanged }) {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
             required
           />
-          <div className="pack-row__actions">
+          <div className={styles.actions}>
             <button type="submit" className="btn">
               Save
             </button>
@@ -149,21 +152,24 @@ export default function CreatorPackRow({ pack, onChanged }) {
       )}
 
       {showPreviews && (
-        <div className="pack-row__previews">
+        <div className={styles.previews}>
           <h4>Previews</h4>
           {previews.length === 0 && <p>No previews yet.</p>}
-          <ul className="preview-list">
+          <ul className={styles.previewList}>
             {previews.map((p) => (
-              <li key={p.id} className="preview-item">
-                <span>{p.title}</span>
+              <li key={p.id} className={styles.previewItem}>
+                <span className={styles.previewName}>{p.title}</span>
                 <audio controls src={p.demo_audio_url} />
-                <button className="danger" onClick={() => removePreview(p.id)}>
+                <button
+                  className={styles.previewDelete}
+                  onClick={() => removePreview(p.id)}
+                >
                   delete
                 </button>
               </li>
             ))}
           </ul>
-          <form className="preview-add" onSubmit={addPreview}>
+          <form className={styles.addForm} onSubmit={addPreview}>
             <input
               value={previewTitle}
               onChange={(e) => setPreviewTitle(e.target.value)}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { fetchUserActivity, deleteComment } from "../api/interactions.js";
+import styles from "./UserActions.module.css";
 
 // "Actions" button on the profile — reveals the current user's likes + comments.
 export default function UserActions() {
@@ -21,19 +22,21 @@ export default function UserActions() {
 
   return (
     <div>
-      <button className="btn" onClick={toggle}>
-        {open ? "Hide Actions" : "Actions"}
+      <button className="btn btn--ghost" onClick={toggle}>
+        {open ? "Hide Actions" : "⚡ Actions"}
       </button>
 
       {open && (
-        <div className="upload-card">
+        <div className={styles.card}>
           <h2>My Likes ({activity.likes.length})</h2>
-          {activity.likes.length === 0 && <p>You haven't liked any packs.</p>}
-          <ul className="user-list">
+          {activity.likes.length === 0 && <p>You haven&apos;t liked any packs.</p>}
+          <ul className={styles.list}>
             {activity.likes.map((l) => (
-              <li key={l.id} className="user-row">
-                <Link to={`/products/${l.id}`}>{l.title}</Link>
-                <span className="pack-row__stats">
+              <li key={l.id} className={styles.row}>
+                <Link to={`/products/${l.id}`} className={styles.link}>
+                  {l.title}
+                </Link>
+                <span className={styles.meta}>
                   by {l.creator_name || "Unknown"}
                 </span>
               </li>
@@ -41,16 +44,16 @@ export default function UserActions() {
           </ul>
 
           <h2>My Comments ({activity.comments.length})</h2>
-          {activity.comments.length === 0 && <p>You haven't commented yet.</p>}
-          <ul className="comment-list">
+          {activity.comments.length === 0 && <p>You haven&apos;t commented yet.</p>}
+          <ul className={styles.list}>
             {activity.comments.map((c) => (
-              <li key={c.id} className="comment-item">
-                <div className="comment-item__meta">
-                  <Link to={`/products/${c.product_id}`}>
+              <li key={c.id} className={styles.comment}>
+                <div className={styles.commentMeta}>
+                  <Link to={`/products/${c.product_id}`} className={styles.link}>
                     {c.product_title}
                   </Link>
                   <button
-                    className="comment-item__delete"
+                    className={styles.delete}
                     onClick={() => removeComment(c.id)}
                   >
                     delete

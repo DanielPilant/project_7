@@ -1,0 +1,15 @@
+.meta {
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+
+.links {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 1.1rem 0;
+}
+
+.note {
+  color: var(--muted);
+}
