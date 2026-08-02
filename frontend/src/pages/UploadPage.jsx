@@ -41,6 +41,7 @@ export default function UploadPage() {
     setError("");
 
     const fd = new FormData();
+
     fd.append("creatorId", user.id);
     fd.append("creatorName", user.name);
     fd.append("title", packForm.title);
@@ -79,7 +80,9 @@ export default function UploadPage() {
             required
             type="text"
             value={packForm.title}
-            onChange={(e) => setPackForm({ ...packForm, title: e.target.value })}
+            onChange={(e) =>
+              setPackForm({ ...packForm, title: e.target.value })
+            }
             placeholder="e.g. Infinity Pack"
           />
         </label>
@@ -92,7 +95,9 @@ export default function UploadPage() {
             min="0"
             step="0.01"
             value={packForm.price}
-            onChange={(e) => setPackForm({ ...packForm, price: e.target.value })}
+            onChange={(e) =>
+              setPackForm({ ...packForm, price: e.target.value })
+            }
             placeholder="19.99"
           />
         </label>

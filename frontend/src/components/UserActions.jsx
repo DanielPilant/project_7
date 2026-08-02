@@ -29,7 +29,9 @@ export default function UserActions() {
       {open && (
         <div className={styles.card}>
           <h2>My Likes ({activity.likes.length})</h2>
-          {activity.likes.length === 0 && <p>You haven&apos;t liked any packs.</p>}
+          {activity.likes.length === 0 && (
+            <p>You haven&apos;t liked any packs.</p>
+          )}
           <ul className={styles.list}>
             {activity.likes.map((l) => (
               <li key={l.id} className={styles.row}>
@@ -44,12 +46,17 @@ export default function UserActions() {
           </ul>
 
           <h2>My Comments ({activity.comments.length})</h2>
-          {activity.comments.length === 0 && <p>You haven&apos;t commented yet.</p>}
+          {activity.comments.length === 0 && (
+            <p>You haven&apos;t commented yet.</p>
+          )}
           <ul className={styles.list}>
             {activity.comments.map((c) => (
               <li key={c.id} className={styles.comment}>
                 <div className={styles.commentMeta}>
-                  <Link to={`/products/${c.product_id}`} className={styles.link}>
+                  <Link
+                    to={`/products/${c.product_id}`}
+                    className={styles.link}
+                  >
                     {c.product_title}
                   </Link>
                   <button
