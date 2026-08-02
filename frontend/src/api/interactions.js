@@ -5,7 +5,9 @@ import api from "./axios.js";
 
 // --- likes --- (each returns fresh { count, liked })
 export function likeProduct(productId, userId) {
-  return api.post(`/products/${productId}/like`, { userId }).then((r) => r.data);
+  return api
+    .post(`/products/${productId}/like`, { userId })
+    .then((r) => r.data);
 }
 
 export function unlikeProduct(productId, userId) {
@@ -36,7 +38,7 @@ export function deleteComment(commentId, requesterId, requesterRole) {
 
 // --- activity / admin ---
 export function fetchUserActivity(userId) {
-  return api.get(`/users/${userId}/activity`).then((r) => r.data);
+  return api.get(`/users/${userId}/activity`).then((r = s > r.data));
 }
 
 export function fetchAllComments() {

@@ -54,7 +54,14 @@ export default function App() {
               </RequireRole>
             }
           />
-          <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route
+            path="/products/:id"
+            element={
+              <RequireRole>
+                <ProductDetailsPage />
+              </RequireRole>
+            }
+          />
           <Route
             path="/upload"
             element={
@@ -63,7 +70,14 @@ export default function App() {
               </RequireRole>
             }
           />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/profile"
+            element={
+              <RequireRole>
+                <ProfilePage />
+              </RequireRole>
+            }
+          />
           <Route
             path="/admin"
             element={

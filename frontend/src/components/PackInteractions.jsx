@@ -73,8 +73,13 @@ export default function PackInteractions({ product }) {
       </button>
 
       {open && (
-        <Modal title={`Comments — ${product.title}`} onClose={() => setOpen(false)}>
-          {comments.length === 0 && <p className={styles.empty}>No comments yet.</p>}
+        <Modal
+          title={`Comments — ${product.title}`}
+          onClose={() => setOpen(false)}
+        >
+          {comments.length === 0 && (
+            <p className={styles.empty}>No comments yet.</p>
+          )}
 
           <ul className={styles.list}>
             {comments.map((c) => (
