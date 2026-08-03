@@ -4,15 +4,15 @@ import api from "./axios.js";
 // since there's no server session yet.
 
 // --- likes --- (each returns fresh { count, liked })
-export function likeProduct(productId, userId) {
+export function likeProduct(productId) {
   return api
-    .post(`/products/${productId}/like`, { userId })
+    .post(`/products/${productId}/like`)
     .then((r) => r.data);
 }
 
-export function unlikeProduct(productId, userId) {
+export function unlikeProduct(productId) {
   return api
-    .delete(`/products/${productId}/like`, { data: { userId } })
+    .delete(`/products/${productId}/like`)
     .then((r) => r.data);
 }
 
@@ -22,17 +22,15 @@ export function fetchComments(productId) {
 }
 
 // add returns the refreshed comment list for that pack
-export function addComment(productId, userId, comment) {
+export function addComment(productId, comment) {
   return api
-    .post(`/products/${productId}/comments`, { userId, comment })
+    .post(`/products/${productId}/comments`, { comment })
     .then((r) => r.data);
 }
 
-export function deleteComment(commentId, requesterId, requesterRole) {
+export function deleteComment(commentId) {
   return api
-    .delete(`/products/comments/${commentId}`, {
-      data: { requesterId, requesterRole },
-    })
+    .delete(`/products/comments/${commentId}`)
     .then((r) => r.data);
 }
 

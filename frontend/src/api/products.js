@@ -42,9 +42,9 @@ export function updateProduct(id, payload) {
 }
 
 // Delete a pack (owner creator or admin).
-export function deleteProduct(id, requesterId, requesterRole) {
+export function deleteProduct(id) {
   return api
-    .delete(`/products/${id}`, { data: { requesterId, requesterRole } })
+    .delete(`/products/${id}`)
     .then((res) => res.data);
 }
 
@@ -53,10 +53,8 @@ export function fetchPreviews(productId) {
   return api.get(`/products/${productId}/previews`).then((res) => res.data);
 }
 
-export function deletePreview(previewId, requesterId, requesterRole) {
+export function deletePreview(previewId) {
   return api
-    .delete(`/products/previews/${previewId}`, {
-      data: { requesterId, requesterRole },
-    })
+    .delete(`/products/previews/${previewId}`)
     .then((res) => res.data);
 }

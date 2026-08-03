@@ -1,10 +1,10 @@
 import api from "../api/axios.js";
 
 // DB-backed auth. The database is the source of truth for users; localStorage
-// only holds the logged-in user object (under "auth_user") so the app knows
-// who is logged in and can gate routes. Passwords are never stored client-side.
+// holds the logged-in user object and JWT token.
 
 const SESSION_KEY = "auth_user";
+const TOKEN_KEY = "auth_token";
 
 // Register does NOT start a session — the user must log in afterwards.
 export async function register(form) {
@@ -12,20 +12,27 @@ export async function register(form) {
   return data;
 }
 
-// Login starts the session: persist the returned user object locally.
+// Login starts the session: persist the returned user object and token locally.
 export async function login(username, password) {
   const { data } = await api.post("/login", { username, password });
-  localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-  return data;
+  // data now contains { token, user }
+  localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+  localStorage.setItem(TOKEN_KEY, data.token);
+  return data.user;
 }
 
 export function logout() {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 export function getCurrentUser() {
   const raw = localStorage.getItem(SESSION_KEY);
   return raw ? JSON.parse(raw) : null;
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 // --- admin user management (DB-backed) ---

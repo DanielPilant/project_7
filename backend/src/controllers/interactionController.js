@@ -5,7 +5,7 @@ import * as interactionModel from "../models/interactionModel.js";
 
 export const likeProduct = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.user.id;
     if (!userId) return res.status(400).json({ error: "userId is required." });
 
     await interactionModel.likeProduct(userId, req.params.id);
@@ -19,7 +19,7 @@ export const likeProduct = async (req, res) => {
 
 export const unlikeProduct = async (req, res) => {
   try {
-    const userId = req.body?.userId || req.query.userId;
+    const userId = req.user.id;
     if (!userId) return res.status(400).json({ error: "userId is required." });
 
     await interactionModel.unlikeProduct(userId, req.params.id);
@@ -43,7 +43,8 @@ export const getComments = async (req, res) => {
 
 export const addComment = async (req, res) => {
   try {
-    const { userId, comment } = req.body;
+    const userId = req.user.id;
+    const { comment } = req.body;
     if (!userId || !comment?.trim()) {
       return res
         .status(400)
@@ -63,8 +64,8 @@ export const addComment = async (req, res) => {
 // A comment can be deleted by its author or by an admin.
 export const deleteComment = async (req, res) => {
   try {
-    const requesterId = req.body?.requesterId ?? req.query.requesterId;
-    const requesterRole = req.body?.requesterRole ?? req.query.requesterRole;
+    const requesterId = req.user.id;
+    const requesterRole = req.user.role;
 
     const comment = await interactionModel.getCommentById(req.params.commentId);
     if (!comment) return res.status(404).json({ error: "Comment not found." });

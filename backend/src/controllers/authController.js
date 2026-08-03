@@ -1,5 +1,8 @@
 import * as authService from "../services/authService.js";
 import { MAX_FAILED_ATTEMPTS } from "../services/authService.js";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret_key";
 
 export const register = async (req, res) => {
   try {
@@ -65,7 +68,15 @@ export const login = async (req, res) => {
 
     // 4. Success: clear the counter/lock, record last_login_at.
     await authService.resetFailedAttempts(auth.user_id);
-    res.json(user);
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    
+    res.json({ token, user });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ error: "Failed to log in." });

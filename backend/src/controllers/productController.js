@@ -45,7 +45,9 @@ export const getProductsByCreator = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const { title, description, price, requesterId, requesterRole } = req.body;
+    const { title, description, price } = req.body;
+    const requesterId = req.user.id;
+    const requesterRole = req.user.role;
 
     const product = await productModel.getProductById(req.params.id);
     if (!product) return res.status(404).json({ error: "Product not found." });
@@ -75,8 +77,8 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
-    const requesterId = req.body?.requesterId ?? req.query.requesterId;
-    const requesterRole = req.body?.requesterRole ?? req.query.requesterRole;
+    const requesterId = req.user.id;
+    const requesterRole = req.user.role;
 
     const product = await productModel.getProductById(req.params.id);
     if (!product) return res.status(404).json({ error: "Product not found." });
@@ -123,8 +125,8 @@ export const getPreviews = async (req, res) => {
 
 export const deletePreview = async (req, res) => {
   try {
-    const requesterId = req.body?.requesterId ?? req.query.requesterId;
-    const requesterRole = req.body?.requesterRole ?? req.query.requesterRole;
+    const requesterId = req.user.id;
+    const requesterRole = req.user.role;
 
     const preview = await productModel.getPreviewById(req.params.previewId);
     if (!preview) return res.status(404).json({ error: "Preview not found." });
@@ -152,7 +154,9 @@ export const deletePreview = async (req, res) => {
 
 export const addPreviewSound = async (req, res) => {
   try {
-    const { productId, title, requesterId, requesterRole } = req.body;
+    const { productId, title } = req.body;
+    const requesterId = req.user.id;
+    const requesterRole = req.user.role;
     const file = req.file;
 
     if (!productId || !title) {
@@ -199,11 +203,13 @@ export const addPreviewSound = async (req, res) => {
 
 export const addSoundPack = async (req, res) => {
   try {
-    const { creatorId, creatorName, title, description, price } = req.body;
+    const { title, description, price } = req.body;
+    const creatorId = req.user.id;
+    const creatorName = req.user.name || req.user.username;
 
     const files = req.files;
 
-    if (!creatorId || !title || !price) {
+    if (!title || !price) {
       return res
         .status(400)
         .json({ error: "Missing required fields or files." });

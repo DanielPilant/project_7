@@ -25,8 +25,8 @@ export default function PackInteractions({ product }) {
   async function toggleLike() {
     if (!user) return;
     const info = liked
-      ? await unlikeProduct(product.id, user.id)
-      : await likeProduct(product.id, user.id);
+      ? await unlikeProduct(product.id)
+      : await likeProduct(product.id);
     setLiked(info.liked);
     setLikeCount(info.count);
   }
@@ -41,14 +41,14 @@ export default function PackInteractions({ product }) {
   async function submitComment(e) {
     e.preventDefault();
     if (!text.trim() || !user) return;
-    const list = await addComment(product.id, user.id, text.trim());
+    const list = await addComment(product.id, text.trim());
     setComments(list);
     setCommentCount(list.length);
     setText("");
   }
 
   async function removeComment(id) {
-    await deleteComment(id, user.id, user.role);
+    await deleteComment(id);
     const list = await fetchComments(product.id);
     setComments(list);
     setCommentCount(list.length);

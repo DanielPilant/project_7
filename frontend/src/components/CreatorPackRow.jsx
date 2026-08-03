@@ -34,8 +34,6 @@ export default function CreatorPackRow({ pack, onChanged }) {
         title: form.title,
         description: form.description,
         price: form.price,
-        requesterId: user.id,
-        requesterRole: user.role,
       });
       setEditing(false);
       onChanged();
@@ -53,7 +51,7 @@ export default function CreatorPackRow({ pack, onChanged }) {
       return;
     setBusy(true);
     try {
-      await deleteProduct(pack.id, user.id, user.role);
+      await deleteProduct(pack.id);
       onChanged();
     } catch (err) {
       setError(err.response?.data?.error || err.message);
@@ -76,8 +74,6 @@ export default function CreatorPackRow({ pack, onChanged }) {
       fd.append("productId", pack.id);
       fd.append("title", previewTitle.trim());
       fd.append("sound", previewFile);
-      fd.append("requesterId", user.id);
-      fd.append("requesterRole", user.role);
       await uploadPreviewSound(fd);
       setPreviewTitle("");
       setPreviewFile(null);
@@ -91,7 +87,7 @@ export default function CreatorPackRow({ pack, onChanged }) {
   }
 
   async function removePreview(id) {
-    await deletePreview(id, user.id, user.role);
+    await deletePreview(id);
     setPreviews(await fetchPreviews(pack.id));
   }
 

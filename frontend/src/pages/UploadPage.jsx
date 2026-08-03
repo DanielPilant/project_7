@@ -42,8 +42,6 @@ export default function UploadPage() {
 
     const fd = new FormData();
 
-    fd.append("creatorId", user.id);
-    fd.append("creatorName", user.name);
     fd.append("title", packForm.title);
     fd.append("description", packForm.description);
     fd.append("price", packForm.price);
