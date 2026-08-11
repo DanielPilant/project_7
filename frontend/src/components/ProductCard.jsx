@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext.jsx";
+import { useAuth } from "../auth/AuthContext.jsx";
 import PackInteractions from "./PackInteractions.jsx";
 import styles from "./ProductCard.module.css";
 
 // A single sound-pack card. Cover/title link to the details page; the
 // like + comment bar sits outside the link so it doesn't trigger navigation.
 export default function ProductCard({ product }) {
+  const { user } = useAuth();
+  const { addToCart, isInCart } = useCart();
+  const inCart = isInCart(product.id);
+
   return (
     <div className={styles.card}>
       <Link to={`/products/${product.id}`} className={styles.link}>
@@ -31,7 +37,17 @@ export default function ProductCard({ product }) {
 
       <div className={styles.footer}>
         <PackInteractions product={product} />
+        {user && (
+          <button
+            className={inCart ? styles.cartBtnDone : styles.cartBtn}
+            onClick={() => !inCart && addToCart(product)}
+            disabled={inCart}
+          >
+            {inCart ? "✓" : "+🛒"}
+          </button>
+        )}
       </div>
     </div>
   );
 }
+

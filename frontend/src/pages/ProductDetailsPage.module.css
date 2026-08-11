@@ -31,6 +31,13 @@
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--accent);
+  margin: 0;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin: 0.5rem 0;
 }
 

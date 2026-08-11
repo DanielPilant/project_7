@@ -9,7 +9,7 @@ export default defineConfig({
     // Proxy API calls to the Express backend during development so you can
     // fetch('/api/...') from React without CORS headaches.
     proxy: {
-      '/api': 'http://localhost:5000',
+      '/api': 'http://localhost:5001',
     },
   },
 });

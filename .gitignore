@@ -15,3 +15,6 @@ dist/
 # Local assets
 frontend/src/assets/infinity_pack/
 
+backend/db/init.sql
+.DS_Store
+backend/db/seed.sql

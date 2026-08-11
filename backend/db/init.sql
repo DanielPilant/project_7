@@ -64,3 +64,24 @@ CREATE TABLE IF NOT EXISTS product_comments (
     FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE
 );
 
+# Orders: purchases made by users.
+CREATE TABLE IF NOT EXISTS Orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    payment_status ENUM('pending', 'completed', 'failed') DEFAULT 'completed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+# Order_Items: products included in an order + price locked at purchase time.
+CREATE TABLE IF NOT EXISTS Order_Items (
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    price_at_purchase DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES Products(id) ON DELETE CASCADE
+);
+
+

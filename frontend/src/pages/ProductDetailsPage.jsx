@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchProductById } from "../api/products.js";
+import { useCart } from "../context/CartContext.jsx";
+import { useAuth } from "../auth/AuthContext.jsx";
 import PackInteractions from "../components/PackInteractions.jsx";
 import styles from "./ProductDetailsPage.module.css";
 
 // Details page: one product's extended info + demo audio + like/comments.
 export default function ProductDetailsPage() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const { addToCart, isInCart } = useCart();
   const [product, setProduct] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | success | error
 
@@ -32,6 +36,8 @@ export default function ProductDetailsPage() {
     return <p className="msg--error">Product not found.</p>;
   }
 
+  const inCart = isInCart(product.id);
+
   return (
     <article className={styles.wrap}>
       <Link to="/" className={styles.back}>
@@ -50,7 +56,19 @@ export default function ProductDetailsPage() {
         />
       )}
 
-      <p className={styles.price}>${Number(product.price ?? 0).toFixed(2)}</p>
+      <div className={styles.priceRow}>
+        <p className={styles.price}>${Number(product.price ?? 0).toFixed(2)}</p>
+        {user && (
+          <button
+            className={inCart ? "btn btn--ghost" : "btn"}
+            onClick={() => !inCart && addToCart(product)}
+            disabled={inCart}
+          >
+            {inCart ? "In Cart ✓" : "Add to Cart"}
+          </button>
+        )}
+      </div>
+
       <p className={styles.desc}>{product.description}</p>
 
       {product.demo_audio_url && (
@@ -63,3 +81,4 @@ export default function ProductDetailsPage() {
     </article>
   );
 }
+

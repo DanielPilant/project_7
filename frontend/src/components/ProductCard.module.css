@@ -67,4 +67,36 @@
 .footer {
   padding: 0 0.8rem 0.8rem;
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+
+.cartBtn {
+  border: none;
+  background: var(--grad);
+  color: var(--accent-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+
+.cartBtn:hover {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.cartBtnDone {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ok);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-pill);
+  cursor: default;
+}
+
