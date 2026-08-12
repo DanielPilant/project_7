@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-// NOTE: the pool is size 1 (DB_CONNECTION_LIMIT=1) — run queries sequentially,
+// NOTE: the pool is size 1 (DB_CONNECTION_LIMIT=1), run queries sequentially,
 // never Promise.all, or a query will wait for a connection that never frees.
 
 // --- likes ---
