@@ -19,8 +19,7 @@ export function fetchMyOrders() {
   return api.get("/orders/mine").then((res) => res.data);
 }
 
-// Build the download URL for a purchased product.
-export function getDownloadUrl(productId) {
-  const base = api.defaults.baseURL || "/api";
-  return `${base}/orders/download/${productId}`;
+// Ask the server for a short-lived signed link to a purchased product's ZIP.
+export function fetchDownloadUrl(productId) {
+  return api.get(`/orders/download/${productId}`).then((res) => res.data.url);
 }

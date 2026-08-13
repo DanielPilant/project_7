@@ -46,12 +46,15 @@ export async function makeAdmin(userId) {
   return data;
 }
 
-// Self-service: the logged-in user upgrades to creator. Because this changes
-// the current user, update the stored session too.
-export async function becomeCreator(userId) {
-  const { data } = await api.patch(`/users/${userId}/role`, { role: "creator" });
-  localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-  return data;
+// Self-service: the logged-in user upgrades to creator. The server identifies
+// them from the token, so no id is sent. It replies like login ({ token, user })
+// because the role lives inside the JWT — storing only the user would leave the
+// server still seeing a customer until the next login.
+export async function becomeCreator() {
+  const { data } = await api.post("/users/me/become-creator");
+  localStorage.setItem(SESSION_KEY, JSON.stringify(data.user));
+  localStorage.setItem(TOKEN_KEY, data.token);
+  return data.user;
 }
 
 // Admin: set any user's role, or delete a user entirely.

@@ -126,6 +126,10 @@ export const setUserRole = async (userId, role) => {
   return await getPublicUserById(userId);
 };
 
+// The role in a JWT is a snapshot from login time, so anything that acts on the
+// caller's own role must read it back from the DB instead of trusting the token.
+export const getUserById = async (userId) => await getPublicUserById(userId);
+
 // Admin action. FK cascade also removes the user's auth row, likes and
 // comments. Their uploaded packs remain (creator_id has no FK).
 export const deleteUser = async (userId) => {

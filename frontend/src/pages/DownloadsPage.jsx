@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchMyOrders, getDownloadUrl } from "../api/orders.js";
-import { getToken } from "../auth/auth.js";
+import { fetchMyOrders, fetchDownloadUrl } from "../api/orders.js";
 import styles from "./DownloadsPage.module.css";
 
 export default function DownloadsPage() {
@@ -33,26 +32,14 @@ export default function DownloadsPage() {
   );
 
   function handleDownload(productId) {
-    // using fetch + blob approach for security.
-    const url = getDownloadUrl(productId);
-    const token = getToken();
-
-    fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Download failed");
-        return res.blob();
+    // The server verifies the purchase and replies with a temporary signed link;
+    // pointing the browser at it starts the download straight from S3.
+    fetchDownloadUrl(productId)
+      .then((url) => {
+        window.location.href = url;
       })
-      .then((blob) => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `soundpack-${productId}.zip`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      })
-      .catch((err) => {
-        alert(err.message || "Download failed. Did you purchase this pack?");
+      .catch(() => {
+        alert("Download failed. Did you purchase this pack?");
       });
   }
 

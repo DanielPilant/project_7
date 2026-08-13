@@ -4,6 +4,21 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret_key";
 
+// The role travels inside the token, so every route that changes the caller's
+// own role has to re-issue one — otherwise requireRole keeps reading the old value.
+const signToken = (user) =>
+  jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    JWT_SECRET,
+    { expiresIn: "7d" },
+  );
+
 export const register = async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
@@ -68,15 +83,8 @@ export const login = async (req, res) => {
 
     // 4. Success: clear the counter/lock, record last_login_at.
     await authService.resetFailedAttempts(auth.user_id);
-    
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-    
-    res.json({ token, user });
+
+    res.json({ token: signToken(user), user });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ error: "Failed to log in." });
@@ -103,6 +111,29 @@ export const updateUserRole = async (req, res) => {
   } catch (error) {
     console.error("Error updating role:", error);
     res.status(400).json({ error: error.message || "Failed to update role." });
+  }
+};
+
+// Self-service: a logged-in customer upgrades themselves to creator. Not behind
+// requireRole — it targets req.user.id from the verified token (never a param),
+// only ever grants 'creator', and refuses any role other than 'customer', so it
+// can't escalate to admin or demote one.
+export const becomeCreator = async (req, res) => {
+  try {
+    const current = await authService.getUserById(req.user.id);
+    if (!current) return res.status(404).json({ error: "User not found." });
+
+    if (current.role !== "customer") {
+      return res
+        .status(409)
+        .json({ error: `A ${current.role} cannot upgrade to creator.` });
+    }
+
+    const user = await authService.setUserRole(req.user.id, "creator");
+    res.json({ token: signToken(user), user });
+  } catch (error) {
+    console.error("Error upgrading to creator:", error);
+    res.status(500).json({ error: "Failed to become a creator." });
   }
 };
 

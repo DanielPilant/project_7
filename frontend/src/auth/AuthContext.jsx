@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
       setUser(null);
     },
     becomeCreator: async () => {
-      const updated = await doBecomeCreator(user.id);
+      const updated = await doBecomeCreator();
       setUser(updated);
       return updated;
     },

@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import * as orderModel from "../models/orderModel.js";
 import * as productModel from "../models/productModel.js";
+import { getSignedDownloadUrl } from "../services/s3Service.js";
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -182,8 +183,14 @@ export const downloadProduct = async (req, res) => {
         .json({ error: "Product or download file not found." });
     }
 
-    // Redirect to the S3 file URL for download.
-    res.redirect(product.zip_file_url);
+    // The pack lives under a private S3 prefix, so a bare URL would be rejected.
+    // Now that the purchase is confirmed, hand back a link that expires shortly.
+    const url = await getSignedDownloadUrl(
+      product.zip_file_url,
+      `${product.title}.zip`,
+    );
+
+    res.json({ url });
   } catch (error) {
     console.error("Error downloading product:", error);
     res.status(500).json({ error: "Failed to download product." });
