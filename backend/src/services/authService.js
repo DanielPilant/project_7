@@ -1,137 +1,124 @@
-import pool from "../config/db.js";
+import jwt from "jsonwebtoken";
+import * as authModel from "../models/authModel.js";
+import { AppError } from "../utils/httpError.js";
 
-// Passwords are hashed inside MySQL with SHA2(?, 256) and live in a separate
-// user_auth table, so the public users table never holds a password.
+// Business rules for accounts: which roles exist, who may become what, and the
+// failed-login lockout. All SQL lives in models/authModel.js.
+
+const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret_key";
 
 const ROLES = ["admin", "creator", "customer"];
 export const MAX_FAILED_ATTEMPTS = 10;
 
-const PUBLIC_FIELDS =
-  "id, name, username, email, phone, website, role, created_at";
-
-// executor is the pool by default, or a specific connection when called from
-// inside a transaction — never acquire a 2nd connection while holding one
-// (the pool can be as small as 1), or it deadlocks.
-async function getPublicUserById(id, executor = pool) {
-  const [rows] = await executor.execute(
-    `SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`,
-    [id],
+// The role travels inside the token, so every route that changes the caller's
+// own role has to re-issue one — otherwise requireRole keeps reading the old value.
+const signToken = (user) =>
+  jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    JWT_SECRET,
+    { expiresIn: "7d" },
   );
-  return rows[0] || null;
-}
 
-// Register: insert profile + auth row in one transaction. Admin can never be
-// self-assigned here; only 'creator' or 'customer' are accepted.
-export const registerUser = async ({
-  name,
-  username,
-  email,
-  password,
-  phone,
-  website,
-  role,
-}) => {
-  const safeRole = role === "creator" ? "creator" : "customer";
+// Register. Admin can never be self-assigned here; only 'creator' or 'customer'
+// are accepted no matter what the client sends.
+export const registerUser = async (payload) => {
+  const { name, username, email, password } = payload;
 
-  const conn = await pool.getConnection();
+  if (!name || !username || !email || !password) {
+    throw new AppError(
+      400,
+      "Name, username, email and password are required.",
+    );
+  }
+
+  const safeRole = payload.role === "creator" ? "creator" : "customer";
+
   try {
-    await conn.beginTransaction();
-
-    const [result] = await conn.execute(
-      `INSERT INTO users (name, username, email, phone, website, role)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, username, email, phone || null, website || null, safeRole],
-    );
-    const userId = result.insertId;
-
-    await conn.execute(
-      `INSERT INTO user_auth (user_id, password_hash)
-       VALUES (?, SHA2(?, 256))`,
-      [userId, password],
-    );
-
-    await conn.commit();
-    return await getPublicUserById(userId, conn);
+    return await authModel.createUser({ ...payload, role: safeRole });
   } catch (error) {
-    await conn.rollback();
+    if (error.code === "ER_DUP_ENTRY") {
+      throw new AppError(409, "That username or email is already taken.");
+    }
     throw error;
-  } finally {
-    conn.release();
   }
 };
 
-// Lockout lookup — resolves username to its auth row WITHOUT checking the
-// password, so the controller can enforce the block before comparing.
-export const findAuthByUsername = async (username) => {
-  const [rows] = await pool.execute(
-    `SELECT a.user_id, a.failed_attempts
-     FROM user_auth a JOIN users u ON u.id = a.user_id
-     WHERE u.username = ?`,
-    [username],
-  );
-  return rows[0] || null;
+// Login, in four deliberate steps: resolve the account without testing the
+// password, refuse it if already blocked, then check the password, then clear
+// the counter. Unknown usernames get the same generic error as wrong passwords
+// so we don't reveal which accounts exist.
+export const login = async (username, password) => {
+  if (!username || !password) {
+    throw new AppError(400, "Username and password are required.");
+  }
+
+  const auth = await authModel.findAuthByUsername(username);
+  if (!auth) {
+    throw new AppError(401, "Invalid username or password.");
+  }
+
+  if (auth.failed_attempts >= MAX_FAILED_ATTEMPTS) {
+    throw new AppError(403, "Account blocked after too many attempts.");
+  }
+
+  const user = await authModel.findUserByCredentials(username, password);
+  if (!user) {
+    const attempts = await authModel.registerFailedAttempt(
+      auth.user_id,
+      MAX_FAILED_ATTEMPTS,
+    );
+    const remaining = MAX_FAILED_ATTEMPTS - attempts;
+    if (remaining <= 0) {
+      throw new AppError(403, "Account blocked after too many attempts.");
+    }
+    throw new AppError(
+      401,
+      `Invalid username or password. ${remaining} attempt(s) remaining.`,
+    );
+  }
+
+  await authModel.resetFailedAttempts(auth.user_id);
+
+  return { token: signToken(user), user };
 };
 
-// The actual password check: the comparison happens inside SQL.
-export const findUserByCredentials = async (username, password) => {
-  const [rows] = await pool.execute(
-    `SELECT ${PUBLIC_FIELDS.split(", ")
-      .map((f) => `u.${f}`)
-      .join(", ")}
-     FROM users u JOIN user_auth a ON a.user_id = u.id
-     WHERE u.username = ? AND a.password_hash = SHA2(?, 256)`,
-    [username, password],
-  );
-  return rows[0] || null;
-};
-
-// Increment the failed counter; stamp blocked_at on the attempt that hits the
-// limit. Returns the new failed_attempts count.
-export const registerFailedAttempt = async (userId) => {
-  await pool.execute(
-    `UPDATE user_auth
-     SET failed_attempts = failed_attempts + 1,
-         blocked_at = IF(failed_attempts + 1 >= ?, NOW(), blocked_at)
-     WHERE user_id = ?`,
-    [MAX_FAILED_ATTEMPTS, userId],
-  );
-  const [rows] = await pool.execute(
-    "SELECT failed_attempts FROM user_auth WHERE user_id = ?",
-    [userId],
-  );
-  return rows[0].failed_attempts;
-};
-
-// Successful login: clear the counter/lock and record last_login_at.
-export const resetFailedAttempts = async (userId) => {
-  await pool.execute(
-    `UPDATE user_auth
-     SET failed_attempts = 0, blocked_at = NULL, last_login_at = NOW()
-     WHERE user_id = ?`,
-    [userId],
-  );
-};
-
-// --- admin user management (promote / list) ---
-export const getAllUsers = async () => {
-  const [rows] = await pool.execute(
-    `SELECT ${PUBLIC_FIELDS} FROM users ORDER BY created_at DESC`,
-  );
-  return rows;
-};
+// --- admin user management ---
+export const getAllUsers = async () => await authModel.getAllUsers();
 
 export const setUserRole = async (userId, role) => {
-  if (!ROLES.includes(role)) throw new Error("Invalid role");
-  await pool.execute("UPDATE users SET role = ? WHERE id = ?", [role, userId]);
-  return await getPublicUserById(userId);
+  if (!ROLES.includes(role)) throw new AppError(400, "Invalid role");
+
+  await authModel.updateUserRole(userId, role);
+
+  const user = await authModel.getPublicUserById(userId);
+  if (!user) throw new AppError(404, "User not found.");
+  return user;
 };
 
-// The role in a JWT is a snapshot from login time, so anything that acts on the
-// caller's own role must read it back from the DB instead of trusting the token.
-export const getUserById = async (userId) => await getPublicUserById(userId);
+// Self-service upgrade. Safe without requireRole because it acts on the id from
+// the verified token (never a param), only ever grants 'creator', and refuses
+// any role other than 'customer' — so it can't escalate to admin or demote one.
+// Returns a fresh token because the role lives inside the JWT.
+export const becomeCreator = async (userId) => {
+  // The role in a JWT is a snapshot from login time, so read it back from the
+  // DB instead of trusting the token.
+  const current = await authModel.getPublicUserById(userId);
+  if (!current) throw new AppError(404, "User not found.");
 
-// Admin action. FK cascade also removes the user's auth row, likes and
-// comments. Their uploaded packs remain (creator_id has no FK).
+  if (current.role !== "customer") {
+    throw new AppError(409, `A ${current.role} cannot upgrade to creator.`);
+  }
+
+  const user = await setUserRole(userId, "creator");
+  return { token: signToken(user), user };
+};
+
 export const deleteUser = async (userId) => {
-  await pool.execute("DELETE FROM users WHERE id = ?", [userId]);
+  await authModel.deleteUser(userId);
 };

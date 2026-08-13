@@ -1,93 +1,25 @@
 import * as authService from "../services/authService.js";
-import { MAX_FAILED_ATTEMPTS } from "../services/authService.js";
-import jwt from "jsonwebtoken";
+import { respondWithError } from "../utils/httpError.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret_key";
-
-// The role travels inside the token, so every route that changes the caller's
-// own role has to re-issue one — otherwise requireRole keeps reading the old value.
-const signToken = (user) =>
-  jwt.sign(
-    {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-    JWT_SECRET,
-    { expiresIn: "7d" },
-  );
+// HTTP only: read the request, call the service, shape the response.
+// Account rules live in services/authService.js, SQL in models/authModel.js.
 
 export const register = async (req, res) => {
   try {
-    const { name, username, email, password } = req.body;
-
-    if (!name || !username || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Name, username, email and password are required." });
-    }
-
     const user = await authService.registerUser(req.body);
     res.status(201).json(user);
   } catch (error) {
-    if (error.code === "ER_DUP_ENTRY") {
-      return res
-        .status(409)
-        .json({ error: "That username or email is already taken." });
-    }
-    console.error("Error registering user:", error);
-    res.status(500).json({ error: "Failed to register." });
+    respondWithError(res, error, "Error registering user:", "Failed to register.");
   }
 };
 
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username and password are required." });
-    }
-
-    // 1. Lockout lookup (no password check yet). Generic error for unknown
-    //    usernames so we don't reveal which accounts exist.
-    const auth = await authService.findAuthByUsername(username);
-    if (!auth) {
-      return res.status(401).json({ error: "Invalid username or password." });
-    }
-
-    // 2. Blocked before we even test the password.
-    if (auth.failed_attempts >= MAX_FAILED_ATTEMPTS) {
-      return res
-        .status(403)
-        .json({ error: "Account blocked after too many attempts." });
-    }
-
-    // 3. The real password check (comparison done inside SQL).
-    const user = await authService.findUserByCredentials(username, password);
-    if (!user) {
-      const attempts = await authService.registerFailedAttempt(auth.user_id);
-      const remaining = MAX_FAILED_ATTEMPTS - attempts;
-      if (remaining <= 0) {
-        return res
-          .status(403)
-          .json({ error: "Account blocked after too many attempts." });
-      }
-      return res.status(401).json({
-        error: `Invalid username or password. ${remaining} attempt(s) remaining.`,
-      });
-    }
-
-    // 4. Success: clear the counter/lock, record last_login_at.
-    await authService.resetFailedAttempts(auth.user_id);
-
-    res.json({ token: signToken(user), user });
+    const session = await authService.login(username, password);
+    res.json(session);
   } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ error: "Failed to log in." });
+    respondWithError(res, error, "Error logging in:", "Failed to log in.");
   }
 };
 
@@ -97,43 +29,30 @@ export const listUsers = async (req, res) => {
     const users = await authService.getAllUsers();
     res.json(users);
   } catch (error) {
-    console.error("Error listing users:", error);
-    res.status(500).json({ error: "Failed to list users." });
+    respondWithError(res, error, "Error listing users:", "Failed to list users.");
   }
 };
 
 export const updateUserRole = async (req, res) => {
   try {
-    const { role } = req.body;
-    const user = await authService.setUserRole(req.params.id, role);
-    if (!user) return res.status(404).json({ error: "User not found." });
+    const user = await authService.setUserRole(req.params.id, req.body.role);
     res.json(user);
   } catch (error) {
-    console.error("Error updating role:", error);
-    res.status(400).json({ error: error.message || "Failed to update role." });
+    respondWithError(res, error, "Error updating role:", "Failed to update role.");
   }
 };
 
-// Self-service: a logged-in customer upgrades themselves to creator. Not behind
-// requireRole — it targets req.user.id from the verified token (never a param),
-// only ever grants 'creator', and refuses any role other than 'customer', so it
-// can't escalate to admin or demote one.
 export const becomeCreator = async (req, res) => {
   try {
-    const current = await authService.getUserById(req.user.id);
-    if (!current) return res.status(404).json({ error: "User not found." });
-
-    if (current.role !== "customer") {
-      return res
-        .status(409)
-        .json({ error: `A ${current.role} cannot upgrade to creator.` });
-    }
-
-    const user = await authService.setUserRole(req.user.id, "creator");
-    res.json({ token: signToken(user), user });
+    const session = await authService.becomeCreator(req.user.id);
+    res.json(session);
   } catch (error) {
-    console.error("Error upgrading to creator:", error);
-    res.status(500).json({ error: "Failed to become a creator." });
+    respondWithError(
+      res,
+      error,
+      "Error upgrading to creator:",
+      "Failed to become a creator.",
+    );
   }
 };
 
@@ -142,7 +61,6 @@ export const deleteUser = async (req, res) => {
     await authService.deleteUser(req.params.id);
     res.json({ success: true, id: Number(req.params.id) });
   } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ error: "Failed to delete user." });
+    respondWithError(res, error, "Error deleting user:", "Failed to delete user.");
   }
 };
